@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitmap Design Family Market</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-weight: bold; }
+  body, html { width: 100%; height: 100%; font-family: 'Space Grotesk', sans-serif; background: #fff; color: #000; }
+  .container { display: flex; height: 100vh; overflow: hidden; }
+  .sidebar {
+    width: 300px;
+    padding: 20px;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+  }
+  .sidebar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+  .logo { width: 250px; margin-bottom: 20px; }
+  .label { font-size: 14px; margin-top: 20px; margin-bottom: 8px; }
+  .btn, .dropdown-button, input[type="text"] {
+    width: 100%; padding: 6px 10px; font-size: 14px; border: 3px solid #000;
+    border-radius: 8px; background: #fff; color: #000; margin-bottom: 12px; cursor: pointer; line-height: 1.2; font-weight: bold;
+    font-family: 'Space Mono', monospace;
+  }
+  .dropdown-button { display: flex; justify-content: space-between; align-items: center; position: relative; }
+  .dropdown-button::after {
+    content: "\25BE";
+    font-size: 24px;
+    font-weight: bold;
+    transform: scaleX(1.8);
+    display: inline-block;
+  }
+  .primary { background: #000; color: #fff; }
+  .dropdown-menu {
+    display: none;
+    flex-direction: column;
+    background: #fff;
+    border: 3px solid #000;
+    border-radius: 8px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .dropdown-menu.active { display: flex; }
+  .dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+  }
+  .dropdown-item:last-child { border-bottom: none; }
+  .dropdown-item:hover { background: #eee; }
+  .slider-container {
+    display: flex; align-items: center;
+    width: 100%; padding: 6px; border: 3px solid #000; border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .slider-container input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: calc(100% - 32px);
+    height: 8px;
+    margin: 0;
+    margin-right: 8px;
+    cursor: pointer;
+    --progress: 33%;
+    background: linear-gradient(to right, #000 var(--progress), #ddd var(--progress));
+    border-radius: 4px;
+  }
+  .slider-container input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px;
+    background: transparent;
+    border-radius: 4px;
+  }
+  .slider-container input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    background: #000;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    margin-top: -4px;
+  }
+  .slider-container input[type="range"]::-moz-range-track {
+    height: 8px;
+    background: transparent;
+    border-radius: 4px;
+  }
+  .slider-container input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #000;
+    border: 2px solid #fff;
+    border-radius: 50%;
+  }
+  .slider-value { font-size: 16px; min-width: 24px; text-align: right; font-weight: bold; font-family: 'Space Mono', monospace; }
+  .footer { position: absolute; bottom: 10px; right: 20px; font-size: 12px; font-weight: bold; }
+  .main-content { flex: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding: 20px; }
+  .artwork { max-width: 80%; height: auto; image-rendering: pixelated; }
+</style>
+
+</head>
+<body>
+<div class="container">
+  <aside class="sidebar">
+    <img src="tg-logo.svg" alt="Typegraph Logo" class="logo" />
+    <div>
+      <div class="label">PNG, JPG, WEBP:</div>
+      <button class="dropdown-button upload-button primary">UPLOAD</button>
+    </div>
+    <div>
+      <div class="label">SIZE:</div>
+      <div class="slider-container">
+        <input type="range" id="size-slider" min="1" max="100" value="33" />
+        <div class="slider-value" id="size-value">33</div>
+      </div>
+    </div>
+    <div>
+      <div class="label">THRESHOLD:</div>
+      <div class="slider-container">
+        <input type="range" id="threshold-slider" min="0" max="100" value="46" />
+        <div class="slider-value" id="threshold-value">46</div>
+      </div>
+    </div>
+    <div>
+      <div class="label">DITHERING METHOD:</div>
+      <button class="dropdown-button primary" onclick="toggleDropdown('dither-menu')">RANDOM</button>
+      <div class="dropdown-menu" id="dither-menu">
+        <div class="dropdown-item">BITMAP</div>
+        <div class="dropdown-item">FLOYD-STEINBERG</div>
+        <div class="dropdown-item">ATKINSON</div>
+        <div class="dropdown-item">JARVIS-JUDICE-NINKE</div>
+        <div class="dropdown-item">STUCKI</div>
+        <div class="dropdown-item">BAYER 2X2</div>
+        <div class="dropdown-item">BAYER 4X4</div>
+        <div class="dropdown-item">BAYER 8X8</div>
+        <div class="dropdown-item">CLUSTERED 4X4</div>
+        <div class="dropdown-item">RANDOM</div>
+      </div>
+    </div>
+    <button class="btn">SHOP</button>
+    <button class="btn">INFO</button>
+    <button class="dropdown-button btn">LOG IN</button>
+    <div class="label">LOG IN FOR SVG</div>
+    <input type="text" placeholder="SVG" />
+    <div class="label">10 LEFT BEFORE LOG IN</div>
+    <button class="dropdown-button primary" onclick="toggleDropdown('format-menu')">PNG</button>
+    <div class="dropdown-menu" id="format-menu">
+      <div class="dropdown-item">SVG</div>
+      <div class="dropdown-item">PNG</div>
+      <div class="dropdown-item">JPG</div>
+    </div>
+    <div class="footer">© 2025 YasYar</div>
+  </aside>
+  <section class="main-content">
+    <img src="artwork.png" alt="Artwork" class="artwork" />
+  </section>
+</div>
+<script>
+  const sizeSlider = document.getElementById('size-slider');
+  const sizeValue = document.getElementById('size-value');
+  const thresholdSlider = document.getElementById('threshold-slider');
+  const thresholdValue = document.getElementById('threshold-value');
+
+  function updateSlider(slider, valueDisplay) {
+    valueDisplay.textContent = slider.value;
+    const percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+    slider.style.setProperty('--progress', `${percentage}%`);
+  }
+
+  sizeSlider.addEventListener('input', () => updateSlider(sizeSlider, sizeValue));
+  thresholdSlider.addEventListener('input', () => updateSlider(thresholdSlider, thresholdValue));
+
+  updateSlider(sizeSlider, sizeValue);
+  updateSlider(thresholdSlider, thresholdValue);
+
+  const buttons = document.querySelectorAll('.btn, .dropdown-button, .upload-button');
+
+  buttons.forEach(button => {
+    button.addEventListener('mouseenter', () => {
+      gsap.to(button, { scale: 1.05, duration: 0.4, ease: "power2.out" });
+    });
+    button.addEventListener('mouseleave', () => {
+      gsap.to(button, { scale: 1, duration: 0.4, ease: "power2.inOut" });
+    });
+  });
+
+  function toggleDropdown(id) {
+    document.getElementById(id).classList.toggle('active');
+  }
+</script>
+</body>
+</html>
